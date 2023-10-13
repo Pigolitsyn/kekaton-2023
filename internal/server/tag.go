@@ -1,24 +1,19 @@
 package server
 
 import (
-	"strconv"
-
 	"github.com/gofiber/fiber/v2"
 
 	"kekaton/back/internal/storage"
 )
 
 func (s *Server) handleGetTag(fcx *fiber.Ctx) error {
-	ttype, err := strconv.ParseInt(fcx.Query("type"), 10, 0)
-	if err != nil || ttype == 0 {
-		return ErrRequest
-	}
+	ttype := fcx.QueryInt("type")
 
 	tag := storage.Tag{
-		Type: int(ttype),
+		Type: ttype,
 	}
 
-	if err = s.service.GetTagByID(fcx.UserContext(), &tag); err != nil {
+	if err := s.service.GetTagByID(fcx.UserContext(), &tag); err != nil {
 		return ErrInternal
 	}
 

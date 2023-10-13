@@ -48,14 +48,11 @@ func (s *Server) handleGetComment(fcx *fiber.Ctx) error {
 }
 
 func (s *Server) handleGetCommentsForPoint(fcx *fiber.Ctx) error {
-	oid, err := fcx.ParamsInt("ID")
-	if err != nil {
-		return ErrRequest
-	}
+	oid := fcx.QueryInt("id")
 
 	comments := make([]storage.Comment, 0)
 
-	if err = s.service.GetCommentsForPoint(fcx.UserContext(), oid, &comments); err != nil {
+	if err := s.service.GetCommentsForPoint(fcx.UserContext(), oid, &comments); err != nil {
 		return err
 	}
 
@@ -66,9 +63,66 @@ func (s *Server) handleGetCommentsForPoint(fcx *fiber.Ctx) error {
 }
 
 func (s *Server) handleAddComment(fcx *fiber.Ctx) error {
-	return ErrSuccess
+	req := RequestNewComment{}
+
+	if err := fcx.BodyParser(&req); err != nil {
+		return ErrRequest
+	}
+
+	usr, ok := fcx.Locals("user").(storage.User)
+	if !ok {
+		return ErrRequest
+	}
+
+	comment := storage.Comment{
+		PointID: req.PointID,
+		UserID:  usr.ID,
+		Text:    req.Text,
+		Rating:  int8(math.Min(math.Min(float64(req.Rating), 5), 1)),
+	}
+
+	if err := s.service.CreateComment(fcx.UserContext(), &comment); err != nil {
+		return err
+	}
+
+	return fcx.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": "Successful create comment",
+		"comment": comment,
+	})
+}
+
+type RequestUpdateComment struct {
+	ID      int    `json:"id"`
+	PointID int    `json:"point_id"`
+	Text    string `json:"text"`
+	Rating  int8   `json:"rating"`
 }
 
 func (s *Server) handleUpdateComment(fcx *fiber.Ctx) error {
-	return ErrSuccess
+	req := RequestUpdateComment{}
+
+	if err := fcx.BodyParser(&req); err != nil {
+		return ErrRequest
+	}
+
+	usr, ok := fcx.Locals("user").(storage.User)
+	if !ok {
+		return ErrRequest
+	}
+
+	comment := storage.Comment{
+		ID:     req.ID,
+		UserID: usr.ID,
+		Text:   req.Text,
+		Rating: int8(math.Min(math.Min(float64(req.Rating), 5), 1)),
+	}
+
+	if err := s.service.UpdateComment(fcx.UserContext(), &comment); err != nil {
+		return err
+	}
+
+	return fcx.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": "Successful update comment",
+		"comment": comment,
+	})
 }

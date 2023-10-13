@@ -58,14 +58,9 @@ func (s *Storage) UpdateComment(ctx context.Context, comment *Comment) error {
 	ctx, cancel := context.WithTimeout(ctx, s.config.Timeout)
 	defer cancel()
 
-	query := `UPDATE comments SET user_id = $2, point_id = $3, comment_text = $4 WHERE comment_id = $1`
+	query := `UPDATE comments SET comment_text = $1, rating = $2 WHERE comment_id = $3 and user_id = $4`
 
-	if _, err := s.pool.Query(ctx,
-		query,
-		comment.ID,
-		comment.UserID,
-		comment.PointID,
-		comment.Text); err != nil {
+	if _, err := s.pool.Query(ctx, query, comment.Text, comment.Rating, comment.ID, comment.UserID); err != nil {
 		return err
 	}
 
