@@ -7,6 +7,7 @@ import (
 
 	jwtware "github.com/gofiber/contrib/jwt"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 
 	"kekaton/back/internal/service"
 	"kekaton/back/internal/storage"
@@ -66,7 +67,7 @@ func (s *Server) registerHandlers(ctx context.Context) {
 		fcx.SetUserContext(ctx)
 
 		return fcx.Next()
-	})
+	}, cors.New())
 
 	api := s.app.Group("/api")
 	api.Get("/ping", func(fcx *fiber.Ctx) error {
