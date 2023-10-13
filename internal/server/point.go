@@ -134,8 +134,8 @@ func (s *Server) handleGetClosestPoint(fcx *fiber.Ctx) error {
 	point := storage.Point{}
 
 	for i := range points {
-		if pointInRadius(center, points[i], rad) {
-			point = points[i]
+		if p, ok := pointInRadius(center, points[i], point, rad); ok {
+			point = p
 		}
 	}
 
@@ -145,9 +145,20 @@ func (s *Server) handleGetClosestPoint(fcx *fiber.Ctx) error {
 	})
 }
 
-func pointInRadius(c, p storage.Point, r float64) bool {
-	x := math.Abs(c.Coordinates[0] - p.Coordinates[0])
-	y := math.Abs(c.Coordinates[1] - p.Coordinates[1])
+func pointInRadius(c, p, o storage.Point, r float64) (storage.Point, bool) {
+	x1 := math.Abs(c.Coordinates[0] - p.Coordinates[0])
+	y1 := math.Abs(c.Coordinates[1] - p.Coordinates[1])
 
-	return x+y <= r
+	x2 := math.Abs(c.Coordinates[0] - o.Coordinates[0])
+	y2 := math.Abs(c.Coordinates[1] - o.Coordinates[1])
+
+	cl := storage.Point{}
+
+	if (x1 + y1) <= (x2 + y2) {
+		cl = p
+	} else {
+		cl = o
+	}
+
+	return cl, x1+y1 <= r
 }
