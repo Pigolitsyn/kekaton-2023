@@ -29,7 +29,7 @@ func (s *Service) GetPointByID(ctx context.Context, point *storage.Point) error 
 		return err
 	}
 
-	if err := s.storage.GetTagForPoint(ctx, point.ID, &point.Tags); err != nil {
+	if err := s.storage.GetTagsForPoint(ctx, point.ID, &point.Tags); err != nil {
 		return err
 	}
 
@@ -48,9 +48,21 @@ func (s *Service) GetPoints(ctx context.Context, points *[]storage.Point) error 
 			return err
 		}
 
-		if err := s.storage.GetTagForPoint(ctx, newPoints[i].ID, &newPoints[i].Tags); err != nil {
+		if err := s.storage.GetTagsForPoint(ctx, newPoints[i].ID, &newPoints[i].Tags); err != nil {
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (s *Service) UpdatePoint(ctx context.Context, point *storage.Point, tags *[]int) error {
+	if err := s.storage.UpdatePoint(ctx, point); err != nil {
+		return err
+	}
+
+	if err := s.storage.UpdatePointTags(ctx, point.ID, tags); err != nil {
+		return err
 	}
 
 	return nil

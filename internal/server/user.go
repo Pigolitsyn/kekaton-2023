@@ -10,9 +10,9 @@ import (
 )
 
 type RequestSignUp struct {
-	Email    string
-	Username string
-	Password string
+	Email    string `json:"email"`
+	Username string `json:"username"`
+	Password string `json:"password"`
 }
 
 func (s *Server) handleUserSignUp(fcx *fiber.Ctx) error {
@@ -54,8 +54,8 @@ func (s *Server) handleUserSignUp(fcx *fiber.Ctx) error {
 }
 
 type RequestSignIn struct {
-	Email    string
-	Password string
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 func (s *Server) handleUserSignIn(fcx *fiber.Ctx) error {

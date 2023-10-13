@@ -10,11 +10,11 @@ import (
 )
 
 type RequestNewPoint struct {
-	Coordinates storage.Coordinates
-	Description string
-	OpenTime    time.Duration
-	CloseTime   time.Duration
-	Tags        []int
+	Coordinates storage.Coordinates `json:"coordinates"`
+	Description string              `json:"description"`
+	OpenTime    time.Duration       `json:"open_time"`
+	CloseTime   time.Duration       `json:"close_time"`
+	Tags        []int               `json:"tags"`
 }
 
 func (s *Server) handleAddPoint(fcx *fiber.Ctx) error {
@@ -88,6 +88,43 @@ func (s *Server) handleGetPoints(fcx *fiber.Ctx) error {
 	})
 }
 
+type RequestUpdatePoint struct {
+	ID          int                 `json:"id"`
+	Coordinates storage.Coordinates `json:"coordinates"`
+	Description string              `json:"description"`
+	OpenTime    time.Duration       `json:"open_time"`
+	CloseTime   time.Duration       `json:"close_time"`
+	Tags        []int               `json:"tags"`
+}
+
 func (s *Server) handleUpdatePoint(fcx *fiber.Ctx) error {
+	req := RequestUpdatePoint{}
+
+	if err := fcx.BodyParser(&req); err != nil {
+		return ErrRequest
+	}
+
+	if req.Coordinates == [2]float64{0.0, 0.0} || req.Description == "" {
+		return ErrData
+	}
+
+	usr, ok := fcx.Locals("user").(storage.User)
+	if !ok {
+		return ErrRequest
+	}
+
+	point := storage.Point{
+		ID:          req.ID,
+		Coordinates: req.Coordinates,
+		Description: req.Description,
+		OpenTime:    req.OpenTime,
+		CloseTime:   req.CloseTime,
+		Creator:     usr,
+	}
+
+	if err := s.service.UpdatePoint(fcx.UserContext(), &point, &req.Tags); err != nil {
+		return ErrInternal
+	}
+
 	return fcx.Status(fiber.StatusOK).JSON(fiber.Map{"message": "successful"})
 }

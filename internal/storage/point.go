@@ -55,9 +55,11 @@ func (s *Storage) GetPointByID(ctx context.Context, point *Point) error {
 
 	query := `SELECT coordinates, description, open_time, close_time, created_by FROM points WHERE id = $1`
 
-	coords := pgtype.Point{}
-	openTime := pgtype.Time{}
-	closeTime := pgtype.Time{}
+	var (
+		coords    = pgtype.Point{}
+		openTime  = pgtype.Time{}
+		closeTime = pgtype.Time{}
+	)
 
 	if err := s.pool.QueryRow(ctx, query, point.ID).Scan(&coords, &point.Description, &openTime, &closeTime, &point.Creator.ID); err != nil {
 		return err
@@ -103,6 +105,30 @@ func (s *Storage) GetPoints(ctx context.Context, points *[]Point) error {
 	}
 
 	*points = newPoints
+
+	return nil
+}
+
+func (s *Storage) UpdatePoint(ctx context.Context, point *Point) error {
+	ctx, timeout := context.WithTimeout(ctx, s.config.Timeout)
+	defer timeout()
+
+	query := `UPDATE points SET coordinates = POINT($2, $3), description = $4, open_time = $5, close_time = $6 WHERE id = $1`
+
+	var (
+		openTime = pgtype.Time{
+			Microseconds: point.OpenTime.Microseconds(),
+			Valid:        true,
+		}
+		closeTime = pgtype.Time{
+			Microseconds: point.CloseTime.Microseconds(),
+			Valid:        true,
+		}
+	)
+
+	if _, err := s.pool.Query(ctx, query, point.ID, point.Coordinates[0], point.Coordinates[1], point.Description, openTime, closeTime); err != nil {
+		return err
+	}
 
 	return nil
 }

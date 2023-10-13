@@ -79,8 +79,8 @@ func (s *Server) registerHandlers(ctx context.Context) {
 	public.Post("/sign-up", s.handleUserSignUp) // Done.
 	public.Post("/sign-in", s.handleUserSignIn) // Done.
 	public.Get("/user", s.handleGetUser)        // Done.
-	public.Get("/point", s.handleGetPoint)      // Tags.
-	public.Get("/points", s.handleGetPoints)    // Tags.
+	public.Get("/point", s.handleGetPoint)      // Done.
+	public.Get("/points", s.handleGetPoints)    // Done.
 	public.Get("/comment", s.handleGetComment)
 	public.Get("/comments", s.handleGetComments)
 	public.Get("/tag", s.handleGetTag)   // Done.
@@ -90,7 +90,7 @@ func (s *Server) registerHandlers(ctx context.Context) {
 	private.Post("/sign-out", s.handleUserSignOut) // Done.
 	private.Patch("/user", s.handleUpdateUser)     // Done.
 	private.Post("/point", s.handleAddPoint)       // Done.
-	private.Patch("/point", s.handleUpdatePoint)
+	private.Patch("/point", s.handleUpdatePoint)   // Done.
 	private.Post("/comment", s.handleAddComment)
 	private.Patch("/comment", s.handleUpdateComment)
 }
