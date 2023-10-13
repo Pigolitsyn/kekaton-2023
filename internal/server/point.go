@@ -84,7 +84,7 @@ func (s *Server) handleGetPoints(fcx *fiber.Ctx) error {
 
 	return fcx.Status(fiber.StatusOK).JSON(fiber.Map{
 		"message": "successful",
-		"points":  points,
+		"points":  pointsToGeo(points),
 	})
 }
 
