@@ -161,5 +161,5 @@ func (s *Server) handleUpdateUser(fcx *fiber.Ctx) error {
 		return ErrInternal
 	}
 
-	return fcx.Status(fiber.StatusOK).JSON(fiber.Map{"message": "successful"})
+	return ErrSuccess
 }

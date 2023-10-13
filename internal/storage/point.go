@@ -10,6 +10,7 @@ import (
 type Point struct {
 	ID          int           `json:"id"`
 	Coordinates Coordinates   `json:"coordinates"`
+	Address     string        `json:"address"`
 	Description string        `json:"description"`
 	OpenTime    time.Duration `json:"open"`
 	CloseTime   time.Duration `json:"close"`
@@ -23,13 +24,14 @@ func (s *Storage) CreatePoint(ctx context.Context, point *Point) error {
 	ctx, timeout := context.WithTimeout(ctx, s.config.Timeout)
 	defer timeout()
 
-	query := `INSERT INTO points (coordinates, description, open_time, close_time, created_by) VALUES (POINT($1, $2), $3, $4, $5, $6) RETURNING id`
+	query := `INSERT INTO points (coordinates, address, description, open_time, close_time, created_by) VALUES (POINT($1, $2), $3, $4, $5, $6, $7) RETURNING id`
 
 	row := s.pool.QueryRow(
 		ctx,
 		query,
 		point.Coordinates[0],
 		point.Coordinates[1],
+		point.Address,
 		point.Description,
 		pgtype.Time{
 			Microseconds: point.OpenTime.Microseconds(),
@@ -53,7 +55,7 @@ func (s *Storage) GetPointByID(ctx context.Context, point *Point) error {
 	ctx, timeout := context.WithTimeout(ctx, s.config.Timeout)
 	defer timeout()
 
-	query := `SELECT coordinates, description, open_time, close_time, created_by FROM points WHERE id = $1`
+	query := `SELECT coordinates, address, description, open_time, close_time, created_by FROM points WHERE id = $1`
 
 	var (
 		coords    = pgtype.Point{}
@@ -61,7 +63,7 @@ func (s *Storage) GetPointByID(ctx context.Context, point *Point) error {
 		closeTime = pgtype.Time{}
 	)
 
-	if err := s.pool.QueryRow(ctx, query, point.ID).Scan(&coords, &point.Description, &openTime, &closeTime, &point.Creator.ID); err != nil {
+	if err := s.pool.QueryRow(ctx, query, point.ID).Scan(&coords, &point.Address, &point.Description, &openTime, &closeTime, &point.Creator.ID); err != nil {
 		return err
 	}
 
@@ -76,7 +78,7 @@ func (s *Storage) GetPoints(ctx context.Context, points *[]Point) error {
 	ctx, timeout := context.WithTimeout(ctx, s.config.Timeout)
 	defer timeout()
 
-	query := `SELECT id, coordinates, description, open_time, close_time, created_by FROM points`
+	query := `SELECT id, coordinates, address, description, open_time, close_time, created_by FROM points`
 
 	rows, err := s.pool.Query(ctx, query)
 	if err != nil {
@@ -92,8 +94,7 @@ func (s *Storage) GetPoints(ctx context.Context, points *[]Point) error {
 		openTime := pgtype.Time{}
 		closeTime := pgtype.Time{}
 
-		err = rows.Scan(&point.ID, &coords, &point.Description, &openTime, &closeTime, &point.Creator.ID)
-		if err != nil {
+		if err = rows.Scan(&point.ID, &coords, &point.Address, &point.Description, &openTime, &closeTime, &point.Creator.ID); err != nil {
 			return err
 		}
 
@@ -113,7 +114,7 @@ func (s *Storage) UpdatePoint(ctx context.Context, point *Point) error {
 	ctx, timeout := context.WithTimeout(ctx, s.config.Timeout)
 	defer timeout()
 
-	query := `UPDATE points SET coordinates = POINT($2, $3), description = $4, open_time = $5, close_time = $6 WHERE id = $1`
+	query := `UPDATE points SET coordinates = POINT($2, $3), address = $4, description = $5, open_time = $6, close_time = $7 WHERE id = $1`
 
 	var (
 		openTime = pgtype.Time{
@@ -126,7 +127,7 @@ func (s *Storage) UpdatePoint(ctx context.Context, point *Point) error {
 		}
 	)
 
-	if _, err := s.pool.Query(ctx, query, point.ID, point.Coordinates[0], point.Coordinates[1], point.Description, openTime, closeTime); err != nil {
+	if _, err := s.pool.Query(ctx, query, point.ID, point.Coordinates[0], point.Coordinates[1], point.Address, point.Description, openTime, closeTime); err != nil {
 		return err
 	}
 

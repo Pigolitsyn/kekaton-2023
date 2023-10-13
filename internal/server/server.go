@@ -14,6 +14,7 @@ import (
 )
 
 var (
+	ErrSuccess  = fiber.NewError(fiber.StatusOK, "success")
 	ErrInternal = fiber.NewError(fiber.StatusInternalServerError, "something went wrong")
 	ErrRequest  = fiber.NewError(fiber.StatusBadRequest, "invalid request")
 	ErrData     = fiber.NewError(fiber.StatusBadRequest, "invalid data")

@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS points
 (
     id          SERIAL       NOT NULL PRIMARY KEY,
     coordinates POINT        NOT NULL,
+    address     VARCHAR(128) NOT NULL,
     description VARCHAR(512),
     open_time   TIME,
     close_time  TIME,

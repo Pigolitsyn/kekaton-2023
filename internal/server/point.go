@@ -11,6 +11,7 @@ import (
 
 type RequestNewPoint struct {
 	Coordinates storage.Coordinates `json:"coordinates"`
+	Address     string              `json:"address"`
 	Description string              `json:"description"`
 	OpenTime    time.Duration       `json:"open_time"`
 	CloseTime   time.Duration       `json:"close_time"`
@@ -45,14 +46,7 @@ func (s *Server) handleAddPoint(fcx *fiber.Ctx) error {
 		return ErrInternal
 	}
 
-	return fcx.Status(fiber.StatusOK).JSON(fiber.Map{
-		"message": "successful",
-		"point":   point.ID,
-	})
-}
-
-type RequestPoint struct {
-	ID int `json:"id"`
+	return ErrSuccess
 }
 
 func (s *Server) handleGetPoint(fcx *fiber.Ctx) error {
@@ -91,6 +85,7 @@ func (s *Server) handleGetPoints(fcx *fiber.Ctx) error {
 type RequestUpdatePoint struct {
 	ID          int                 `json:"id"`
 	Coordinates storage.Coordinates `json:"coordinates"`
+	Address     string              `json:"address"`
 	Description string              `json:"description"`
 	OpenTime    time.Duration       `json:"open_time"`
 	CloseTime   time.Duration       `json:"close_time"`
@@ -111,6 +106,7 @@ func (s *Server) handleUpdatePoint(fcx *fiber.Ctx) error {
 	point := storage.Point{
 		ID:          req.ID,
 		Coordinates: req.Coordinates,
+		Address:     req.Address,
 		Description: req.Description,
 		OpenTime:    req.OpenTime,
 		CloseTime:   req.CloseTime,
@@ -120,5 +116,5 @@ func (s *Server) handleUpdatePoint(fcx *fiber.Ctx) error {
 		return ErrInternal
 	}
 
-	return fcx.Status(fiber.StatusOK).JSON(fiber.Map{"message": "successful"})
+	return ErrSuccess
 }
