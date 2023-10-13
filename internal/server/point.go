@@ -1,6 +1,7 @@
 package server
 
 import (
+	"strconv"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -30,7 +31,7 @@ func (s *Server) handleAddPoint(fcx *fiber.Ctx) error {
 		Description: req.Description,
 		OpenTime:    req.OpenTime,
 		CloseTime:   req.CloseTime,
-		CreatedBy:   fcx.Locals("user").(storage.User).ID,
+		CreatedBy:   fcx.Locals("user").(storage.User),
 	}
 
 	if err := s.service.RegisterPoint(fcx.UserContext(), &point); err != nil {
@@ -45,6 +46,40 @@ func (s *Server) handleAddPoint(fcx *fiber.Ctx) error {
 	})
 }
 
+type RequestPoint struct {
+	ID int
+}
+
+func (s *Server) handleGetPoint(fcx *fiber.Ctx) error {
+	pid, err := strconv.ParseInt(fcx.Query("id"), 10, 0)
+	if err != nil || pid == 0 {
+		return ErrRequest
+	}
+
+	point := storage.Point{
+		ID: int(pid),
+	}
+
+	if err := s.service.GetPointByID(fcx.UserContext(), &point); err != nil {
+		return ErrInternal
+	}
+
+	return fcx.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": "successful",
+		"point":   point,
+	})
+}
+
 func (s *Server) handleGetPoints(fcx *fiber.Ctx) error {
-	return fcx.Status(fiber.StatusOK).JSON(fiber.Map{"message": "successful"})
+
+	points := make([]storage.Point, 0)
+
+	if err := s.service.GetPoints(fcx.UserContext(), &points); err != nil {
+		return ErrInternal
+	}
+
+	return fcx.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": "successful",
+		"points":  points,
+	})
 }

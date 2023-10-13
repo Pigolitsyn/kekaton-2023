@@ -12,6 +12,12 @@ import (
 	"kekaton/back/internal/service"
 )
 
+var (
+	ErrInternal = fiber.NewError(fiber.StatusInternalServerError, "something went wrong")
+	ErrRequest  = fiber.NewError(fiber.StatusBadRequest, "invalid request")
+	ErrData     = fiber.NewError(fiber.StatusBadRequest, "invalid data")
+)
+
 type Config struct {
 	Secret    []byte
 	TokenName string
@@ -71,6 +77,8 @@ func (s *Server) registerHandlers(ctx context.Context) {
 	public := v1.Group("/public")
 	public.Post("/sign-up", s.handleUserSignUp)
 	public.Post("/sign-in", s.handleUserSignIn)
+	public.Get("/user", s.handleGetUser)
+	public.Get("/point", s.handleGetPoint)
 	public.Get("/points", s.handleGetPoints)
 	public.Get("/comments", s.handleGetComments)
 
@@ -96,19 +104,13 @@ func (s *Server) handleAuth(fcx *fiber.Ctx) error {
 	}
 
 	if err = s.service.GetUserByID(fcx.UserContext(), &user); err != nil {
-		return fcx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message": "invalid data"})
+		return ErrData
 	}
 
 	fcx.Locals("user", user)
 
 	return fcx.Next()
 }
-
-var (
-	ErrInternal = fiber.NewError(fiber.StatusInternalServerError, "something went wrong")
-	ErrRequest  = fiber.NewError(fiber.StatusInternalServerError, "invalid request")
-	ErrData     = fiber.NewError(fiber.StatusInternalServerError, "invalid data")
-)
 
 func ErrorHandler(fcx *fiber.Ctx, err error) error {
 	code := fiber.StatusInternalServerError

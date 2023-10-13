@@ -18,7 +18,6 @@ var (
 
 type TokenMetadata struct {
 	UserID  uuid.UUID
-	Email   string
 	Expires int64
 }
 
@@ -27,7 +26,6 @@ func (s *Server) MakeJWT(user *storage.User) (string, int64, error) {
 
 	claims := jwt.MapClaims{
 		"uid": user.ID,
-		"eml": user.Email,
 		"exp": exp,
 	}
 
@@ -41,11 +39,6 @@ func (s *Server) MakeJWT(user *storage.User) (string, int64, error) {
 
 func (s *Server) ValidateJWT(fcx *fiber.Ctx) (*jwt.Token, error) {
 	var tokenString string
-
-	// Currently we use cookies to pass jwt
-	//if bearer := fcx.Get("Authorization"); bearer != "" {
-	//	tokenString = strings.TrimPrefix(bearer, "Bearer ")
-	//}
 
 	if cookie := fcx.Cookies(s.config.TokenName); cookie != "" {
 		tokenString = cookie
@@ -76,7 +69,6 @@ func (s *Server) ExtractJWTMetadata(token *jwt.Token) (*TokenMetadata, error) {
 
 	return &TokenMetadata{
 		UserID:  uid,
-		Email:   claims["eml"].(string),
 		Expires: int64(claims["exp"].(float64)),
 	}, nil
 }

@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 
 	"kekaton/back/internal/storage"
 )
@@ -105,4 +106,30 @@ func (s *Server) handleUserSignOut(fcx *fiber.Ctx) error {
 	})
 
 	return fiber.NewError(fiber.StatusOK, "successful sign out")
+}
+
+func (s *Server) handleGetUser(fcx *fiber.Ctx) error {
+	id := fcx.Query("id")
+
+	if id == "" {
+		return ErrRequest
+	}
+
+	uid, err := uuid.Parse(id)
+	if err != nil {
+		return ErrData
+	}
+
+	user := storage.User{
+		ID: uid,
+	}
+
+	if err = s.service.GetUserByID(fcx.UserContext(), &user); err != nil {
+		return ErrInternal
+	}
+
+	return fcx.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": "successful",
+		"user":    user,
+	})
 }

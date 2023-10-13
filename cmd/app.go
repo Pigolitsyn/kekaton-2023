@@ -5,6 +5,7 @@ import (
 	"errors"
 	"os"
 	"os/signal"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -40,7 +41,9 @@ func run(ctx context.Context) error {
 		return err
 	}
 
-	stg := storage.New(db)
+	stg := storage.New(db, storage.Config{
+		Timeout: time.Second,
+	})
 
 	src := service.New(stg)
 

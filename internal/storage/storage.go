@@ -2,14 +2,21 @@ package storage
 
 import (
 	"github.com/jackc/pgx/v5/pgxpool"
+	"time"
 )
 
-type Storage struct {
-	pool *pgxpool.Pool
+type Config struct {
+	Timeout time.Duration
 }
 
-func New(pool *pgxpool.Pool) *Storage {
+type Storage struct {
+	pool   *pgxpool.Pool
+	config Config
+}
+
+func New(pool *pgxpool.Pool, config Config) *Storage {
 	return &Storage{
-		pool: pool,
+		pool:   pool,
+		config: config,
 	}
 }
