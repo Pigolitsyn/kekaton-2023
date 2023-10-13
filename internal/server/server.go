@@ -83,8 +83,8 @@ func (s *Server) registerHandlers(ctx context.Context) {
 	public.Get("/points", s.handleGetPoints)    // Tags.
 	public.Get("/comment", s.handleGetComment)
 	public.Get("/comments", s.handleGetComments)
-	public.Get("/tag", s.handleGetTag)
-	public.Get("/tags", s.handleGetTags)
+	public.Get("/tag", s.handleGetTag)   // Done.
+	public.Get("/tags", s.handleGetTags) // Done.
 
 	private := v1.Group("/private", handleJWT, s.handleAuth)
 	private.Post("/sign-out", s.handleUserSignOut) // Done.

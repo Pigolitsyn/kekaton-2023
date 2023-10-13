@@ -13,7 +13,7 @@ type Point struct {
 	Description string        `json:"description"`
 	OpenTime    time.Duration `json:"open"`
 	CloseTime   time.Duration `json:"close"`
-	CreatedBy   User          `json:"creator"`
+	Creator     User          `json:"creator"`
 }
 
 type Coordinates [2]float64
@@ -38,7 +38,7 @@ func (s *Storage) CreatePoint(ctx context.Context, point *Point) error {
 			Microseconds: point.CloseTime.Microseconds(),
 			Valid:        true,
 		},
-		point.CreatedBy.ID,
+		point.Creator.ID,
 	)
 
 	if err := row.Scan(&point.ID); err != nil {
@@ -58,7 +58,7 @@ func (s *Storage) GetPointByID(ctx context.Context, point *Point) error {
 	openTime := pgtype.Time{}
 	closeTime := pgtype.Time{}
 
-	if err := s.pool.QueryRow(ctx, query, point.ID).Scan(&coords, &point.Description, &openTime, &closeTime, &point.CreatedBy.ID); err != nil {
+	if err := s.pool.QueryRow(ctx, query, point.ID).Scan(&coords, &point.Description, &openTime, &closeTime, &point.Creator.ID); err != nil {
 		return err
 	}
 
@@ -89,7 +89,7 @@ func (s *Storage) GetPoints(ctx context.Context, points *[]Point) error {
 		openTime := pgtype.Time{}
 		closeTime := pgtype.Time{}
 
-		err = rows.Scan(&point.ID, &coords, &point.Description, &openTime, &closeTime, &point.CreatedBy.ID)
+		err = rows.Scan(&point.ID, &coords, &point.Description, &openTime, &closeTime, &point.Creator.ID)
 		if err != nil {
 			return err
 		}

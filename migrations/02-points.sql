@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS tag_types
 
 CREATE TABLE IF NOT EXISTS tags
 (
-    id       SERIAL  NOT NULL UNIQUE PRIMARY KEY,
+    id       SERIAL  NOT NULL PRIMARY KEY,
     point_id INTEGER,
     type_id  INTEGER,
 

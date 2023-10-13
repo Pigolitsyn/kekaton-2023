@@ -36,7 +36,7 @@ func (s *Server) handleAddPoint(fcx *fiber.Ctx) error {
 		Description: req.Description,
 		OpenTime:    req.OpenTime,
 		CloseTime:   req.CloseTime,
-		CreatedBy:   usr,
+		Creator:     usr,
 	}
 
 	if err := s.service.RegisterPoint(fcx.UserContext(), &point); err != nil {
@@ -65,7 +65,7 @@ func (s *Server) handleGetPoint(fcx *fiber.Ctx) error {
 		ID: int(pid),
 	}
 
-	if err := s.service.GetPointByID(fcx.UserContext(), &point); err != nil {
+	if err = s.service.GetPointByID(fcx.UserContext(), &point); err != nil {
 		return ErrInternal
 	}
 
@@ -76,7 +76,6 @@ func (s *Server) handleGetPoint(fcx *fiber.Ctx) error {
 }
 
 func (s *Server) handleGetPoints(fcx *fiber.Ctx) error {
-
 	points := make([]storage.Point, 0)
 
 	if err := s.service.GetPoints(fcx.UserContext(), &points); err != nil {
