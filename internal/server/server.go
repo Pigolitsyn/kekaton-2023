@@ -68,7 +68,9 @@ func (s *Server) registerHandlers(ctx context.Context) {
 		fcx.SetUserContext(ctx)
 
 		return fcx.Next()
-	}, cors.New())
+	}, cors.New(cors.Config{
+		AllowOrigins: "http://localhost:5173",
+	}))
 
 	api := s.app.Group("/api")
 	api.Get("/ping", func(fcx *fiber.Ctx) error {
