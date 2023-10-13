@@ -1,7 +1,7 @@
 package server
 
 import (
-	"strconv"
+	"math"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -50,16 +50,13 @@ func (s *Server) handleAddPoint(fcx *fiber.Ctx) error {
 }
 
 func (s *Server) handleGetPoint(fcx *fiber.Ctx) error {
-	pid, err := strconv.ParseInt(fcx.Query("id"), 10, 0)
-	if err != nil || pid == 0 {
-		return ErrRequest
-	}
+	pid := fcx.QueryInt("id")
 
 	point := storage.Point{
 		ID: int(pid),
 	}
 
-	if err = s.service.GetPointByID(fcx.UserContext(), &point); err != nil {
+	if err := s.service.GetPointByID(fcx.UserContext(), &point); err != nil {
 		return ErrInternal
 	}
 
@@ -117,4 +114,40 @@ func (s *Server) handleUpdatePoint(fcx *fiber.Ctx) error {
 	}
 
 	return ErrSuccess
+}
+
+func (s *Server) handleGetClosestPoint(fcx *fiber.Ctx) error {
+	lon := fcx.QueryFloat("lon")
+	lat := fcx.QueryFloat("lat")
+	rad := fcx.QueryFloat("rad")
+
+	points := make([]storage.Point, 0)
+
+	if err := s.service.GetPoints(fcx.UserContext(), &points); err != nil {
+		return ErrInternal
+	}
+
+	center := storage.Point{
+		Coordinates: [2]float64{lon, lat},
+	}
+
+	point := storage.Point{}
+
+	for i := range points {
+		if pointInRadius(center, points[i], rad) {
+			point = points[i]
+		}
+	}
+
+	return fcx.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message":     "successful",
+		"coordinates": point.Coordinates,
+	})
+}
+
+func pointInRadius(c, p storage.Point, r float64) bool {
+	x := math.Abs(c.Coordinates[0] - p.Coordinates[0])
+	y := math.Abs(c.Coordinates[1] - p.Coordinates[1])
+
+	return x+y <= r
 }
