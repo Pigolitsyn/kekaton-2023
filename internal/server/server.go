@@ -84,7 +84,7 @@ func (s *Server) registerHandlers(ctx context.Context) {
 	public.Get("/point", s.handleGetPoint)      // Done.
 	public.Get("/points", s.handleGetPoints)    // Done.
 	public.Get("/comment", s.handleGetComment)
-	public.Get("/comments", s.handleGetComments)
+	public.Get("/comments", s.handleGetCommentsForPoint)
 	public.Get("/tag", s.handleGetTag)   // Done.
 	public.Get("/tags", s.handleGetTags) // Done.
 
