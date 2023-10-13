@@ -52,7 +52,7 @@ func (s *Server) handleAddPoint(fcx *fiber.Ctx) error {
 }
 
 type RequestPoint struct {
-	ID int
+	ID int `json:"id"`
 }
 
 func (s *Server) handleGetPoint(fcx *fiber.Ctx) error {
@@ -108,18 +108,12 @@ func (s *Server) handleUpdatePoint(fcx *fiber.Ctx) error {
 		return ErrData
 	}
 
-	usr, ok := fcx.Locals("user").(storage.User)
-	if !ok {
-		return ErrRequest
-	}
-
 	point := storage.Point{
 		ID:          req.ID,
 		Coordinates: req.Coordinates,
 		Description: req.Description,
 		OpenTime:    req.OpenTime,
 		CloseTime:   req.CloseTime,
-		Creator:     usr,
 	}
 
 	if err := s.service.UpdatePoint(fcx.UserContext(), &point, &req.Tags); err != nil {

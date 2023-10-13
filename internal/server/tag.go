@@ -8,10 +8,6 @@ import (
 	"kekaton/back/internal/storage"
 )
 
-type RequestTag struct {
-	Type int
-}
-
 func (s *Server) handleGetTag(fcx *fiber.Ctx) error {
 	ttype, err := strconv.ParseInt(fcx.Query("type"), 10, 0)
 	if err != nil || ttype == 0 {
