@@ -52,6 +52,7 @@ func (s *Server) handleUserSignUp(fcx *fiber.Ctx) error {
 	return fcx.Status(fiber.StatusOK).JSON(fiber.Map{
 		"message": "successful sign up",
 		"jwt":     token,
+		"exp":     expires,
 	})
 }
 
@@ -99,6 +100,7 @@ func (s *Server) handleUserSignIn(fcx *fiber.Ctx) error {
 	return fcx.Status(fiber.StatusOK).JSON(fiber.Map{
 		"message": "successful sign in",
 		"jwt":     token,
+		"exp":     expires,
 	})
 }
 
