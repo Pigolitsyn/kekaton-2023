@@ -14,6 +14,7 @@ type Point struct {
 	OpenTime    time.Duration `json:"open"`
 	CloseTime   time.Duration `json:"close"`
 	Creator     User          `json:"creator"`
+	Tags        []Tag         `json:"tags"`
 }
 
 type Coordinates [2]float64

@@ -51,6 +51,34 @@ func (s *Storage) GetTags(ctx context.Context, tags *[]Tag) error {
 	return nil
 }
 
+func (s *Storage) GetTagForPoint(ctx context.Context, pid int, tags *[]Tag) error {
+	ctx, timeout := context.WithTimeout(ctx, s.config.Timeout)
+	defer timeout()
+
+	query := `SELECT type_id, tag_types.name FROM tags LEFT JOIN tag_types on tags.type_id = tag_types.id WHERE point_id = $1`
+
+	rows, err := s.pool.Query(ctx, query, pid)
+	if err != nil {
+		return err
+	}
+
+	newTags := make([]Tag, 0)
+
+	for rows.Next() {
+		tag := Tag{}
+
+		if err = rows.Scan(&tag.Type, &tag.Name); err != nil {
+			return err
+		}
+
+		newTags = append(newTags, tag)
+	}
+
+	*tags = newTags
+
+	return nil
+}
+
 func (s *Storage) AddTagsToPoint(ctx context.Context, pid int, tags *[]int) error {
 	ctx, timeout := context.WithTimeout(ctx, s.config.Timeout)
 	defer timeout()
