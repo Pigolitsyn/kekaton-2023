@@ -16,6 +16,7 @@ var (
 	ErrInternal = fiber.NewError(fiber.StatusInternalServerError, "something went wrong")
 	ErrRequest  = fiber.NewError(fiber.StatusBadRequest, "invalid request")
 	ErrData     = fiber.NewError(fiber.StatusBadRequest, "invalid data")
+	ErrToken    = fiber.NewError(fiber.StatusUnauthorized, "invalid token")
 )
 
 type Config struct {
@@ -57,7 +58,7 @@ func (s *Server) registerHandlers(ctx context.Context) {
 			Key:    s.config.Secret,
 		},
 		ErrorHandler: func(fcx *fiber.Ctx, err error) error {
-			return fcx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"message": "unauthorized or expired jwt"})
+			return ErrToken
 		},
 	})
 
@@ -97,12 +98,12 @@ func (s *Server) registerHandlers(ctx context.Context) {
 func (s *Server) handleAuth(fcx *fiber.Ctx) error {
 	token, err := s.ValidateJWT(fcx)
 	if err != nil {
-		return fcx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"message": "invalid token"})
+		return ErrToken
 	}
 
 	meta, err := s.ExtractJWTMetadata(token)
 	if err != nil {
-		return fcx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"message": "invalid token"})
+		return ErrToken
 	}
 
 	user := storage.User{
