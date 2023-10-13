@@ -70,7 +70,7 @@ func (s *Server) registerHandlers(ctx context.Context) {
 		return fcx.Next()
 	}, cors.New(cors.Config{
 		AllowOrigins:     "http://localhost:5173",
-		AllowHeaders:     "Access-Control-Allow-Credentials",
+		AllowHeaders:     "Content-type",
 		AllowCredentials: true,
 	}))
 
