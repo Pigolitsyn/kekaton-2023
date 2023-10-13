@@ -12,8 +12,6 @@ services:
       - service_network
     ports:
       - '5432:5432'
-    volumes:
-      - ./database:/var/lib/postgresql/data
     restart: on-failure
     healthcheck:
       test: [ 'CMD-SHELL', 'pg_isready' ]

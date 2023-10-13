@@ -15,6 +15,6 @@ install-deps:
 	go mod download
 
 .PHONY: install-tools
-tools:
+install-tools:
 	go get github.com/rubenv/sql-migrate/sql-migrate@latest
 	go install github.com/rubenv/sql-migrate/sql-migrate
