@@ -42,9 +42,11 @@ func (s *Server) handleUserSignUp(fcx *fiber.Ctx) error {
 	}
 
 	fcx.Cookie(&fiber.Cookie{
-		Name:    s.config.TokenName,
-		Value:   token,
-		Expires: time.Unix(expires, 0),
+		Name:     s.config.TokenName,
+		Value:    token,
+		Expires:  time.Unix(expires, 0),
+		HTTPOnly: true,
+		Secure:   true,
 	})
 
 	return fcx.Status(fiber.StatusOK).JSON(fiber.Map{
@@ -87,9 +89,11 @@ func (s *Server) handleUserSignIn(fcx *fiber.Ctx) error {
 	}
 
 	fcx.Cookie(&fiber.Cookie{
-		Name:    s.config.TokenName,
-		Value:   token,
-		Expires: time.Unix(expires, 0),
+		Name:     s.config.TokenName,
+		Value:    token,
+		Expires:  time.Unix(expires, 0),
+		HTTPOnly: true,
+		Secure:   true,
 	})
 
 	return fcx.Status(fiber.StatusOK).JSON(fiber.Map{
