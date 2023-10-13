@@ -86,7 +86,7 @@ func (s *Server) registerHandlers(ctx context.Context) {
 	public.Post("/sign-in", s.handleUserSignIn)
 	public.Get("/user", s.handleGetUser)
 	public.Get("/point", s.handleGetPoint)
-	public.Get("/point", s.handleGetClosestPoint)
+	public.Get("/point-closest", s.handleGetClosestPoint)
 	public.Get("/points", s.handleGetPoints)
 	public.Get("/comment", s.handleGetComment)
 	public.Get("/comments", s.handleGetCommentsForPoint)
