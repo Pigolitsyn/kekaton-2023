@@ -14,7 +14,7 @@ type RequestNewPoint struct {
 	Description string
 	OpenTime    time.Duration
 	CloseTime   time.Duration
-	Tags        []storage.Tag
+	Tags        []int
 }
 
 func (s *Server) handleAddPoint(fcx *fiber.Ctx) error {
@@ -24,7 +24,9 @@ func (s *Server) handleAddPoint(fcx *fiber.Ctx) error {
 		return ErrRequest
 	}
 
-	// TODO validate
+	if req.Coordinates == [2]float64{0.0, 0.0} || req.Description == "" {
+		return ErrData
+	}
 
 	usr, ok := fcx.Locals("user").(storage.User)
 	if !ok {
@@ -39,11 +41,9 @@ func (s *Server) handleAddPoint(fcx *fiber.Ctx) error {
 		Creator:     usr,
 	}
 
-	if err := s.service.RegisterPoint(fcx.UserContext(), &point); err != nil {
+	if err := s.service.RegisterPoint(fcx.UserContext(), &point, &req.Tags); err != nil {
 		return ErrInternal
 	}
-
-	// TODO register tags
 
 	return fcx.Status(fiber.StatusOK).JSON(fiber.Map{
 		"message": "successful",

@@ -7,9 +7,9 @@ import (
 
 	jwtware "github.com/gofiber/contrib/jwt"
 	"github.com/gofiber/fiber/v2"
-	"kekaton/back/internal/storage"
 
 	"kekaton/back/internal/service"
+	"kekaton/back/internal/storage"
 )
 
 var (
@@ -89,7 +89,7 @@ func (s *Server) registerHandlers(ctx context.Context) {
 	private := v1.Group("/private", handleJWT, s.handleAuth)
 	private.Post("/sign-out", s.handleUserSignOut) // Done.
 	private.Patch("/user", s.handleUpdateUser)     // Done.
-	private.Post("/point", s.handleAddPoint)       // Tags.
+	private.Post("/point", s.handleAddPoint)       // Done.
 	private.Patch("/point", s.handleUpdatePoint)
 	private.Post("/comment", s.handleAddComment)
 	private.Patch("/comment", s.handleUpdateComment)

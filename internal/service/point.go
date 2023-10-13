@@ -6,8 +6,18 @@ import (
 	"kekaton/back/internal/storage"
 )
 
-func (s *Service) RegisterPoint(ctx context.Context, point *storage.Point) error {
-	return s.storage.CreatePoint(ctx, point)
+func (s *Service) RegisterPoint(ctx context.Context, point *storage.Point, tags *[]int) error {
+	if err := s.storage.CreatePoint(ctx, point); err != nil {
+		return err
+	}
+
+	if len(*tags) > 0 {
+		if err := s.storage.AddTagsToPoint(ctx, point.ID, tags); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (s *Service) GetPointByID(ctx context.Context, point *storage.Point) error {

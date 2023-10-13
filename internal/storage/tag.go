@@ -1,6 +1,9 @@
 package storage
 
-import "context"
+import (
+	"context"
+	"fmt"
+)
 
 type Tag struct {
 	Type int    `json:"type"`
@@ -44,6 +47,35 @@ func (s *Storage) GetTags(ctx context.Context, tags *[]Tag) error {
 	}
 
 	*tags = newTags
+
+	return nil
+}
+
+func (s *Storage) AddTagsToPoint(ctx context.Context, pid int, tags *[]int) error {
+	ctx, timeout := context.WithTimeout(ctx, s.config.Timeout)
+	defer timeout()
+
+	query := `INSERT INTO tags (point_id, type_id) VALUES `
+
+	addTags := *tags
+
+	var values string
+
+	for i := range addTags {
+		if i == 0 {
+			values = fmt.Sprintf("(%v, %v)", pid, addTags[i])
+
+			continue
+		}
+
+		values = fmt.Sprintf("%v, (%v, %v)", values, pid, addTags[i])
+	}
+
+	query += values
+
+	if _, err := s.pool.Query(ctx, query); err != nil {
+		return err
+	}
 
 	return nil
 }
