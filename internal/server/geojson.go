@@ -3,6 +3,7 @@ package server
 import "kekaton/back/internal/storage"
 
 type PointGeo struct {
+	ID       int      `json:"id"`
 	Type     string   `json:"type"`
 	Geometry Geometry `json:"geometry"`
 }
@@ -17,6 +18,7 @@ func pointsToGeo(points []storage.Point) []PointGeo {
 
 	for i := range points {
 		geos[i] = PointGeo{
+			ID:   points[i].ID,
 			Type: "Feature",
 			Geometry: Geometry{
 				Type:        "Point",
