@@ -26,12 +26,17 @@ func (s *Server) handleAddPoint(fcx *fiber.Ctx) error {
 
 	// TODO validate
 
+	usr, ok := fcx.Locals("user").(storage.User)
+	if !ok {
+		return ErrRequest
+	}
+
 	point := storage.Point{
 		Coordinates: req.Coordinates,
 		Description: req.Description,
 		OpenTime:    req.OpenTime,
 		CloseTime:   req.CloseTime,
-		CreatedBy:   fcx.Locals("user").(storage.User),
+		CreatedBy:   usr,
 	}
 
 	if err := s.service.RegisterPoint(fcx.UserContext(), &point); err != nil {

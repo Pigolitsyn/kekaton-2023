@@ -76,20 +76,20 @@ func (s *Server) registerHandlers(ctx context.Context) {
 	v1 := api.Group("/v1")
 
 	public := v1.Group("/public")
-	public.Post("/sign-up", s.handleUserSignUp)
-	public.Post("/sign-in", s.handleUserSignIn)
-	public.Get("/user", s.handleGetUser)
-	public.Get("/point", s.handleGetPoint)
-	public.Get("/points", s.handleGetPoints)
+	public.Post("/sign-up", s.handleUserSignUp) // Done.
+	public.Post("/sign-in", s.handleUserSignIn) // Done.
+	public.Get("/user", s.handleGetUser)        // Done.
+	public.Get("/point", s.handleGetPoint)      // Tags.
+	public.Get("/points", s.handleGetPoints)    // Tags.
 	public.Get("/comment", s.handleGetComment)
 	public.Get("/comments", s.handleGetComments)
 	public.Get("/tag", s.handleGetTag)
 	public.Get("/tags", s.handleGetTags)
 
 	private := v1.Group("/private", handleJWT, s.handleAuth)
-	private.Post("/sign-out", s.handleUserSignOut)
-	private.Patch("/user", s.handleUpdateUser)
-	private.Post("/point", s.handleAddPoint)
+	private.Post("/sign-out", s.handleUserSignOut) // Done.
+	private.Patch("/user", s.handleUpdateUser)     // Done.
+	private.Post("/point", s.handleAddPoint)       // Tags.
 	private.Patch("/point", s.handleUpdatePoint)
 	private.Post("/comment", s.handleAddComment)
 	private.Patch("/comment", s.handleUpdateComment)

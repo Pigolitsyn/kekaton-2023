@@ -135,5 +135,31 @@ func (s *Server) handleGetUser(fcx *fiber.Ctx) error {
 }
 
 func (s *Server) handleUpdateUser(fcx *fiber.Ctx) error {
+	req := RequestSignUp{}
+
+	if err := fcx.BodyParser(&req); err != nil {
+		return ErrRequest
+	}
+
+	if req.Username == "" || req.Email == "" || req.Password == "" {
+		return ErrData
+	}
+
+	usr, ok := fcx.Locals("user").(storage.User)
+	if !ok {
+		return ErrRequest
+	}
+
+	user := storage.User{
+		ID:       usr.ID,
+		Email:    req.Email,
+		Username: req.Username,
+		Password: req.Password,
+	}
+
+	if err := s.service.UpdateUser(fcx.UserContext(), &user); err != nil {
+		return ErrInternal
+	}
+
 	return fcx.Status(fiber.StatusOK).JSON(fiber.Map{"message": "successful"})
 }

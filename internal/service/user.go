@@ -14,13 +14,10 @@ var (
 )
 
 func (s *Service) RegisterUser(ctx context.Context, user *storage.User) error {
-	hased, err := s.MakePassword(user.Password)
+	err := s.genUserPassword(user)
 	if err != nil {
 		return err
 	}
-
-	user.Password = hased.Hash
-	user.Salt = hased.Salt
 
 	return s.storage.CreateUser(ctx, user)
 }
@@ -39,4 +36,25 @@ func (s *Service) GetUserByEmail(ctx context.Context, user *storage.User) error 
 	}
 
 	return s.storage.GetUserByEmail(ctx, user)
+}
+
+func (s *Service) UpdateUser(ctx context.Context, user *storage.User) error {
+	err := s.genUserPassword(user)
+	if err != nil {
+		return err
+	}
+
+	return s.storage.UpdateUser(ctx, user)
+}
+
+func (s *Service) genUserPassword(user *storage.User) error {
+	hased, err := s.MakePassword(user.Password)
+	if err != nil {
+		return err
+	}
+
+	user.Password = hased.Hash
+	user.Salt = hased.Salt
+
+	return nil
 }

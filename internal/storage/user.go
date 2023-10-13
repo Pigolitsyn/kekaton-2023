@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"log"
 
 	"github.com/google/uuid"
 )
@@ -56,6 +57,20 @@ func (s *Storage) GetUserByID(ctx context.Context, user *User) error {
 	query := `SELECT email, username, password, salt FROM users WHERE id = $1`
 
 	if err := s.pool.QueryRow(ctx, query, user.ID).Scan(&user.Email, &user.Username, &user.Password, &user.Salt); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *Storage) UpdateUser(ctx context.Context, user *User) error {
+	ctx, timeout := context.WithTimeout(ctx, s.config.Timeout)
+	defer timeout()
+
+	query := `UPDATE users SET email = $2, username = $3, password = $4, salt = $5 WHERE id = $1 RETURNING id`
+
+	if err := s.pool.QueryRow(ctx, query, user.ID, user.Email, user.Username, user.Password, user.Salt).Scan(&user.ID); err != nil {
+		log.Print(err)
 		return err
 	}
 
