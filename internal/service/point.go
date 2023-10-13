@@ -29,6 +29,8 @@ func (s *Service) GetPoints(ctx context.Context, points *[]storage.Point) error 
 
 	newPoints := *points
 
+	// Currently no need to optimize.
+	// Keep rolling.
 	for i := range newPoints {
 		if err := s.storage.GetUserByID(ctx, &newPoints[i].CreatedBy); err != nil {
 			return err

@@ -133,3 +133,7 @@ func (s *Server) handleGetUser(fcx *fiber.Ctx) error {
 		"user":    user,
 	})
 }
+
+func (s *Server) handleUpdateUser(fcx *fiber.Ctx) error {
+	return fcx.Status(fiber.StatusOK).JSON(fiber.Map{"message": "successful"})
+}

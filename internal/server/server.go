@@ -80,12 +80,18 @@ func (s *Server) registerHandlers(ctx context.Context) {
 	public.Get("/user", s.handleGetUser)
 	public.Get("/point", s.handleGetPoint)
 	public.Get("/points", s.handleGetPoints)
+	public.Get("/comment", s.handleGetComment)
 	public.Get("/comments", s.handleGetComments)
+	public.Get("/tag", s.handleGetTag)
+	public.Get("/tags", s.handleGetTags)
 
 	private := v1.Group("/private", handleJWT, s.handleAuth)
 	private.Post("/sign-out", s.handleUserSignOut)
+	private.Patch("/user", s.handleUpdateUser)
 	private.Post("/point", s.handleAddPoint)
+	private.Patch("/point", s.handleUpdatePoint)
 	private.Post("/comment", s.handleAddComment)
+	private.Patch("/comment", s.handleUpdateComment)
 }
 
 func (s *Server) handleAuth(fcx *fiber.Ctx) error {

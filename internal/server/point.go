@@ -83,3 +83,7 @@ func (s *Server) handleGetPoints(fcx *fiber.Ctx) error {
 		"points":  points,
 	})
 }
+
+func (s *Server) handleUpdatePoint(fcx *fiber.Ctx) error {
+	return fcx.Status(fiber.StatusOK).JSON(fiber.Map{"message": "successful"})
+}
