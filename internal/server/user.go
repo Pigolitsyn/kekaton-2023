@@ -1,0 +1,108 @@
+package server
+
+import (
+	"time"
+
+	"github.com/gofiber/fiber/v2"
+
+	"kekaton/back/internal/storage"
+)
+
+type RequestSignUp struct {
+	Email    string
+	Username string
+	Password string
+}
+
+func (s *Server) handleUserSignUp(fcx *fiber.Ctx) error {
+	req := RequestSignUp{}
+
+	if err := fcx.BodyParser(&req); err != nil {
+		return ErrRequest
+	}
+
+	if req.Username == "" || req.Email == "" || req.Password == "" {
+		return ErrData
+	}
+
+	user := storage.User{
+		Email:    req.Email,
+		Username: req.Username,
+		Password: req.Password,
+	}
+
+	if err := s.service.RegisterUser(fcx.UserContext(), &user); err != nil {
+		return ErrInternal
+	}
+
+	token, expires, err := s.MakeJWT(&user)
+	if err != nil {
+		return ErrInternal
+	}
+
+	fcx.Cookie(&fiber.Cookie{
+		Name:    s.config.TokenName,
+		Value:   token,
+		Expires: time.Unix(expires, 0),
+	})
+
+	return fcx.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": "successful sign up",
+		"jwt":     token,
+	})
+}
+
+type RequestSignIn struct {
+	Email    string
+	Password string
+}
+
+func (s *Server) handleUserSignIn(fcx *fiber.Ctx) error {
+	req := RequestSignIn{}
+
+	if err := fcx.BodyParser(&req); err != nil {
+		return ErrRequest
+	}
+
+	if req.Email == "" || req.Password == "" {
+		return ErrData
+	}
+
+	user := storage.User{
+		Email: req.Email,
+	}
+
+	if err := s.service.GetUserByEmail(fcx.UserContext(), &user); err != nil {
+		return ErrInternal
+	}
+
+	if s.service.VerifyPassword(user.Password, user.Salt, req.Password) {
+		return ErrInternal
+	}
+
+	token, expires, err := s.MakeJWT(&user)
+	if err != nil {
+		return ErrInternal
+	}
+
+	fcx.Cookie(&fiber.Cookie{
+		Name:    s.config.TokenName,
+		Value:   token,
+		Expires: time.Unix(expires, 0),
+	})
+
+	return fcx.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": "successful sign in",
+		"jwt":     token,
+	})
+}
+
+func (s *Server) handleUserSignOut(fcx *fiber.Ctx) error {
+	fcx.Cookie(&fiber.Cookie{
+		Name:    s.config.TokenName,
+		Value:   "",
+		Expires: time.Now().Add(-time.Hour * 24),
+	})
+
+	return fiber.NewError(fiber.StatusOK, "successful sign out")
+}
