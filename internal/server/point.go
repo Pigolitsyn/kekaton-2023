@@ -39,6 +39,7 @@ func (s *Server) handleAddPoint(fcx *fiber.Ctx) error {
 		Description: req.Description,
 		OpenTime:    req.OpenTime,
 		CloseTime:   req.CloseTime,
+		Address:	 req.Address,
 		Creator:     usr,
 	}
 
