@@ -72,7 +72,7 @@ func (s *Server) registerHandlers(ctx context.Context) {
 		AllowOrigins:     "http://localhost:5173",
 		AllowHeaders:     "Content-type",
 		AllowCredentials: true,
-	}))
+	})).Static("/", "./static")
 
 	api := s.app.Group("/api")
 	api.Get("/ping", func(fcx *fiber.Ctx) error {
