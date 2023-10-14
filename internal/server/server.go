@@ -7,7 +7,6 @@ import (
 
 	jwtware "github.com/gofiber/contrib/jwt"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cors"
 
 	"kekaton/back/internal/service"
 	"kekaton/back/internal/storage"
@@ -64,15 +63,11 @@ func (s *Server) registerHandlers(ctx context.Context) {
 		},
 	})
 
-	s.app.Use(func(fcx *fiber.Ctx) error {
+	s.app.Static("/", "./static").Use(func(fcx *fiber.Ctx) error {
 		fcx.SetUserContext(ctx)
 
 		return fcx.Next()
-	}, cors.New(cors.Config{
-		AllowOrigins:     "http://localhost:5173",
-		AllowHeaders:     "Content-type",
-		AllowCredentials: true,
-	})).Static("/", "./static")
+	})
 
 	api := s.app.Group("/api")
 	api.Get("/ping", func(fcx *fiber.Ctx) error {
@@ -100,6 +95,12 @@ func (s *Server) registerHandlers(ctx context.Context) {
 	private.Patch("/point", s.handleUpdatePoint)
 	private.Post("/comment", s.handleAddComment)
 	private.Patch("/comment", s.handleUpdateComment)
+
+	s.app.Use(func(fcx *fiber.Ctx) error {
+		fcx.SetUserContext(ctx)
+
+		return fcx.SendFile("static/index.html")
+	})
 }
 
 func (s *Server) handleAuth(fcx *fiber.Ctx) error {

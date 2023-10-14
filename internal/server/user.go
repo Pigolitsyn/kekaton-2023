@@ -47,7 +47,7 @@ func (s *Server) handleUserSignUp(fcx *fiber.Ctx) error {
 		Name:     s.config.TokenName,
 		Value:    token,
 		Expires:  expires,
-		HTTPOnly: true,
+		HTTPOnly: false,
 		Secure:   true,
 	})
 
@@ -97,7 +97,7 @@ func (s *Server) handleUserSignIn(fcx *fiber.Ctx) error {
 		Name:     s.config.TokenName,
 		Value:    token,
 		Expires:  expires,
-		HTTPOnly: true,
+		HTTPOnly: false,
 		Secure:   true,
 	})
 
