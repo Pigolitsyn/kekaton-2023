@@ -2,8 +2,6 @@ package server
 
 import (
 	"errors"
-	"time"
-
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
@@ -17,24 +15,20 @@ var (
 )
 
 type TokenMetadata struct {
-	UserID  uuid.UUID
-	Expires int64
+	UserID uuid.UUID
 }
 
-func (s *Server) MakeJWT(user *storage.User) (string, int64, error) {
-	exp := time.Now().Add(time.Hour * 72).Unix()
-
+func (s *Server) MakeJWT(user *storage.User) (string, error) {
 	claims := jwt.MapClaims{
 		"uid": user.ID,
-		"exp": exp,
 	}
 
 	token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString(s.config.Secret)
 	if err != nil {
-		return "", 0, err
+		return "", err
 	}
 
-	return token, exp, nil
+	return token, nil
 }
 
 func (s *Server) ValidateJWT(fcx *fiber.Ctx) (*jwt.Token, error) {
@@ -68,7 +62,6 @@ func (s *Server) ExtractJWTMetadata(token *jwt.Token) (*TokenMetadata, error) {
 	}
 
 	return &TokenMetadata{
-		UserID:  uid,
-		Expires: int64(claims["exp"].(float64)),
+		UserID: uid,
 	}, nil
 }

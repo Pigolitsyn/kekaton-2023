@@ -36,15 +36,17 @@ func (s *Server) handleUserSignUp(fcx *fiber.Ctx) error {
 		return ErrInternal
 	}
 
-	token, expires, err := s.MakeJWT(&user)
+	token, err := s.MakeJWT(&user)
 	if err != nil {
 		return ErrInternal
 	}
 
+	expires := time.Now().Add(time.Hour * 72).UTC()
+
 	fcx.Cookie(&fiber.Cookie{
 		Name:     s.config.TokenName,
 		Value:    token,
-		Expires:  time.Unix(expires, 0),
+		Expires:  expires,
 		HTTPOnly: true,
 		Secure:   true,
 	})
@@ -84,15 +86,17 @@ func (s *Server) handleUserSignIn(fcx *fiber.Ctx) error {
 		return ErrInternal
 	}
 
-	token, expires, err := s.MakeJWT(&user)
+	token, err := s.MakeJWT(&user)
 	if err != nil {
 		return ErrInternal
 	}
 
+	expires := time.Now().Add(time.Hour * 72).UTC()
+
 	fcx.Cookie(&fiber.Cookie{
 		Name:     s.config.TokenName,
 		Value:    token,
-		Expires:  time.Unix(expires, 0),
+		Expires:  expires,
 		HTTPOnly: true,
 		Secure:   true,
 	})
